@@ -7,7 +7,7 @@ authors = [
 ]
 description = "Easily serialize object for use with neon, fork of neon-serde"
 license = "MIT"
-repository = "https://github.com/matrix-org/neon-serde"
+repository = "https://github.com/mappingvermont/neon-serde"
 readme = "readme.md"
 edition = "2021"
 
