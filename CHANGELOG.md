@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+## Version 0.10.0
+
+* Update to neon 0.10.0
+
+## Version 0.8.0
+
+* Update to neon 0.8.0
+
 ## Version 0.3.0
 
 ### Features

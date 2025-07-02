@@ -2,7 +2,7 @@
 #![deny(unused_variables)]
 #![deny(unused_mut)]
 #![deny(clippy)]
-#![deny(clippy_pedantic)]
+#![deny(clippy::pedantic)]
 #![allow(stutter)]
 #![recursion_limit = "128"]
 
@@ -30,10 +30,7 @@
 //!
 //! ```rust,no_run
 //! # #![allow(dead_code)]
-//! extern crate neon_serde;
-//! extern crate neon;
-//! #[macro_use]
-//! extern crate serde_derive;
+//! use serde::{Serialize, Deserialize};
 //!
 //! use neon::prelude::*;
 //!
@@ -47,10 +44,12 @@
 //! fn deserialize_something(mut cx: FunctionContext) -> JsResult<JsValue> {
 //!     let arg0 = cx.argument::<JsValue>(0)?;
 //!
-//!     let arg0_value :AnObject = neon_serde::from_value(&mut cx, arg0)?;
+//!     let arg0_value :AnObject = neon_serde::from_value(&mut cx, arg0)
+//!         .or_else(|e| cx.throw_error(e.to_string()))
+//!         .unwrap();
 //!     println!("{:?}", arg0_value);
 //!
-//!     Ok(JsUndefined::new().upcast())
+//!     Ok(JsUndefined::new(&mut cx).upcast())
 //! }
 //!
 //! fn serialize_something(mut cx: FunctionContext) -> JsResult<JsValue> {
@@ -60,7 +59,9 @@
 //!         c: "a string".into()
 //!     };
 //!
-//!     let js_value = neon_serde::to_value(&mut cx, &value)?;
+//!     let js_value = neon_serde::to_value(&mut cx, &value)
+//!         .or_else(|e| cx.throw_error(e.to_string()))
+//!         .unwrap();
 //!     Ok(js_value)
 //! }
 //!
@@ -70,16 +71,9 @@
 //! ```
 //!
 
-#[macro_use]
-extern crate error_chain;
-extern crate neon;
-extern crate num;
-#[macro_use]
-extern crate serde;
-
-pub mod ser;
 pub mod de;
 pub mod errors;
+pub mod ser;
 
 mod macros;
 
@@ -97,10 +91,14 @@ mod tests {
         fn check<'j>(mut cx: FunctionContext<'j>) -> JsResult<'j, JsValue> {
             let result: () = {
                 let arg: Handle<'j, JsValue> = cx.argument::<JsValue>(0)?;
-                let () = from_value(&mut cx, arg)?;
+                let () = from_value(&mut cx, arg)
+                    .or_else(|e| cx.throw_error(e.to_string()))
+                    .unwrap();
                 ()
             };
-            let result: Handle<'j, JsValue> = to_value(&mut cx, &result)?;
+            let result: Handle<'j, JsValue> = to_value(&mut cx, &result)
+                .or_else(|e| cx.throw_error(e.to_string()))
+                .unwrap();
             Ok(result)
         }
 
@@ -112,14 +110,16 @@ mod tests {
         fn check<'j>(mut cx: FunctionContext<'j>) -> JsResult<'j, JsValue> {
             let result: () = {
                 let arg: Option<Handle<'j, JsValue>> = cx.argument_opt(0);
-                let () = from_value_opt(&mut cx, arg)?;
-                ()
+                let () = from_value_opt(&mut cx, arg)
+                    .or_else(|e| cx.throw_error(e.to_string()))
+                    .unwrap();
             };
-            let result: Handle<'j, JsValue> = to_value(&mut cx, &result)?;
+            let result: Handle<'j, JsValue> = to_value(&mut cx, &result)
+                .or_else(|e| cx.throw_error(e.to_string()))
+                .unwrap();
             Ok(result)
         }
 
         let _ = check;
     }
-
 }
